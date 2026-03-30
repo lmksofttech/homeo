@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Kishore Homeo Clinic</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1a3928;
+    --sage: #234d35;
+    --mint: #3d8a5e;
+    --pale: #9bcfaf;
+    --warm: #ede8dc;
+    --gold: #c49a4a;
+    --gold-light: #e8c97a;
+    --text: #1a2820;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: #f8f6f0;
+    color: var(--text);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background-color: #0d1c13;
+    background-image: 
+      radial-gradient(ellipse at top left, rgba(35,77,53,0.8) 0%, rgba(26,57,40,0.8) 40%, transparent 100%),
+      url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239bcfaf' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    border-right: 1px solid rgba(155,207,175,0.1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+  }
+  .sidebar::before {
+    content: '';
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(circle, rgba(155,207,175,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .sidebar::after {
+    content: '';
+    position: absolute; bottom: -10%; left: -20%; width: 140%; height: 80%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='-120 -100 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%233d8a5e' fill-opacity='0.15' d='M 0 -30 C 0 -30 -15 -60 -60 -60 C -105 -60 -105 -10 -105 -10 C -105 40 -60 80 0 120 C 60 80 105 40 105 -10 C 105 -10 105 -60 60 -60 C 15 -60 0 -30 0 -30 Z' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: bottom left;
+    background-size: contain;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .sidebar > * { position: relative; z-index: 10; }
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--white);
+    margin-bottom: 40px;
+    padding: 0 10px;
+  }
+  .brand em { color: var(--gold-light); font-style: italic; }
+  
+  .nav-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .nav-item.active, .nav-item:hover {
+    background: rgba(155,207,175,0.1);
+    color: var(--white);
+  }
+  .nav-item svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+  .logout { margin-top: auto; color: #ff8a8a; }
+
+  /* MAIN CONTENT */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .header {
+    height: 70px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.03);
+    z-index: 10;
+  }
+  .header h2 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--forest); }
+  
+  .btn-primary {
+    background: var(--forest);
+    color: var(--white);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 8px;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--sage); }
+
+  .content-area {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+  }
+
+  /* LIST VIEW */
+  .card {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    border: 1px solid rgba(22,45,32,0.05);
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; text-align: left; }
+  th { padding: 16px 24px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--sage); background: rgba(61,138,94,0.03); border-bottom: 2px solid rgba(22,45,32,0.05); }
+  td { padding: 18px 24px; border-bottom: 1px solid rgba(22,45,32,0.05); font-size: 14px; }
+  tbody tr { transition: background 0.2s; cursor: pointer; }
+  tbody tr:hover { background: #fdfcfb; }
+  .status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; background: rgba(61,138,94,0.1); color: var(--mint); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* TIMELINE VIEW (Hidden by default) */
+  #timelineView { display: none; }
+  .back-btn { display: inline-flex; align-items: center; gap: 8px; color: var(--sage); cursor: pointer; margin-bottom: 24px; font-weight: 500; font-size: 14px; transition: color 0.2s; }
+  .back-btn:hover { color: var(--forest); }
+  
+  .patient-header { background: var(--forest); color: var(--white); padding: 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(26,57,40,0.15); display: flex; justify-content: space-between; align-items: center; }
+  .patient-header h3 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--gold-light); margin-bottom: 6px; }
+  .patient-header p { font-size: 14px; color: rgba(255,255,255,0.7); display: flex; gap: 16px; }
+  .p-badge { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; }
+
+  .timeline-wrap { background: var(--white); padding: 40px; border-radius: 12px; border: 1px solid rgba(22,45,32,0.05); }
+  .timeline { position: relative; padding-left: 20px; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: rgba(61,138,94,0.2); }
+  
+  .timeline-item { position: relative; margin-bottom: 30px; padding-left: 30px; }
+  .timeline-item:last-child { margin-bottom: 0; }
+  .timeline-item::before { content: ''; position: absolute; left: -26px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--mint); border: 3px solid var(--white); box-shadow: 0 0 0 2px rgba(61,138,94,0.2); }
+  
+  .tl-date { font-size: 12px; color: var(--sage); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+  .tl-content { background: #fdfcfb; padding: 20px; border-radius: 10px; border: 1px solid rgba(22,45,32,0.04); }
+  .tl-content h4 { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--forest); margin-bottom: 8px; }
+  .tl-content p { font-size: 14px; color: #555; line-height: 1.6; white-space: pre-wrap; }
+
+  /* MODALS */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(26,57,40,0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+  .modal-overlay.active { display: flex; opacity: 1; }
+  .modal { background: var(--white); width: 100%; max-width: 500px; border-radius: 16px; padding: 30px; transform: translateY(20px); transition: transform 0.3s; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+  .modal-overlay.active .modal { transform: translateY(0); }
+  
+  .modal h3 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--forest); margin-bottom: 24px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 12px; color: var(--sage); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid rgba(155,207,175,0.4); border-radius: 6px; font-family: 'Outfit', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; background: #faf9f6; color: var(--forest); }
+  .form-group input:focus, .form-group textarea:focus { border-color: var(--mint); background: var(--white); }
+  
+  .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 30px; }
+  .btn-ghost { background: transparent; color: var(--sage); border: none; cursor: pointer; font-weight: 600; font-family: 'Outfit', sans-serif; font-size: 14px; padding: 10px 20px; }
+  .btn-ghost:hover { color: var(--forest); }
+  
+  .empty-state { text-align: center; padding: 60px 20px !important; color: var(--sage); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">Admin <em>Panel</em></div>
+  <div class="nav-item active" onclick="showListView()">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Patient Details
+  </div>
+  <div class="nav-item logout" onclick="logout()">
+    <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    Logout
+  </div>
+</div>
+
+<div class="main">
+  <div class="header">
+    <h2 id="headerTitle">Patient Details</h2>
+    <div id="headerActions">
+      <button class="btn-primary" onclick="openPatientModal()">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New Patient
+      </button>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- LIST VIEW -->
+    <div id="listView" class="card">
+      <div style="padding: 20px 24px; border-bottom: 1px solid rgba(22,45,32,0.05); display: flex; align-items: center; gap: 12px; background: #faf9f6;">
+        <svg style="width:20px;height:20px;color:var(--sage);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchInput" placeholder="Search patient records by name, phone, or age..." onkeyup="filterPatients()" style="border:none; background:transparent; outline:none; font-family:'Outfit',sans-serif; font-size:15px; width:100%; color:var(--forest);">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Patient Name</th>
+            <th>Phone</th>
+            <th>Age / Gender</th>
+            <th>Last Visit</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="patientTableBody">
+          <!-- JS Render -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TIMELINE VIEW -->
+    <div id="timelineView">
+      <div class="back-btn" onclick="showListView()">
+        <svg style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Patients List
+      </div>
+      
+      <div class="patient-header">
+        <div>
+          <h3 id="tlName">Patient Name</h3>
+          <p id="tlInfo">
+            <span class="p-badge" id="tlPhone"></span>
+            <span class="p-badge" id="tlAge"></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="timeline-wrap">
+        <h4 style="font-family:'Playfair Display',serif; font-size:20px; color:var(--forest); margin-bottom:24px;">Consultation History</h4>
+        <div class="timeline" id="timelineContainer">
+          <!-- JS Render -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PATIENT FORM MODAL -->
+<div class="modal-overlay" id="patientModal">
+  <div class="modal">
+    <h3>Add New Patient</h3>
+    <form id="newPatientForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="pName" placeholder="e.g. Ramesh K." required>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="pPhone" placeholder="e.g. 9876543210" required>
+        </div>
+        <div class="form-group">
+          <label>Age & Gender</label>
+          <input type="text" id="pAge" placeholder="e.g. 42 / M" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Initial Complaint (1st Visit Notes)</label>
+        <textarea id="pComplaint" rows="4" placeholder="Enter symptoms, diagnosis or prescribed remedy..." required></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" onclick="closeModal('patientModal')">Cancel</button>
+        <button type="submit" class="btn-primary">Save Patient</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TIMELINE FORM MODAL -->
+<div class="modal-overlay" id="timelineModal">
+  <div class="modal">
+    <h3>Log New Visit</h3>
+    <form id="newTimelineForm">
+      <div class="form-group">
+        <label>Consultation Date</label>
+        <input type="date" id="tDate" required>
+      </div>
+      <div class="form-group">
+        <label>Diagnosis & Prescription details</label>
+        <textarea id="tNotes" rows="5" placeholder="Enter response to previous medicine, new symptoms, or new prescription..." required></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" onclick="closeModal('timelineModal')">Cancel</button>
+        <button type="submit" class="btn-primary" style="background:var(--gold); color:var(--forest);">Add Record</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Auth Check
+  if (sessionStorage.getItem('adminAuth') !== 'true') {
+    window.location.href = 'admin-login.html';
+  }
+
+  // State Management (LocalStorage)
+  let patients = JSON.parse(localStorage.getItem('kishore_patients')) || [
+    {
+      id: 1,
+      name: 'Ramesh K.',
+      phone: '+91 9344088432',
+      age: '42 / M',
+      timeline: [
+        { date: '2026-01-15', notes: 'Complaint of severe lower back pain and stiffness. Prescribed Rhus Tox 200c.' },
+        { date: '2026-02-10', notes: 'Pain reduced by 60%. Mobility improved. Continuing same prescription for another month.' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Priya M.',
+      phone: '+91 9876543210',
+      age: '28 / F',
+      timeline: [
+        { date: '2026-03-05', notes: 'Severe migraine attacks, twice a week. Triggered by stress and sunlight. Prescribed Belladonna 30c.' }
+      ]
+    }
+  ];
+  let currentPatientId = null;
+
+  function savePatients() {
+    localStorage.setItem('kishore_patients', JSON.stringify(patients));
+  }
+
+  function filterPatients() {
+    const filter = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#patientTableBody tr');
+    rows.forEach(row => {
+      // Ignore empty state row
+      if (row.innerText.includes('No patients')) return; 
+      if (row.innerText.toLowerCase().indexOf(filter) > -1) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  // Route Views
+  function renderTable() {
+    const tbody = document.getElementById('patientTableBody');
+    if (patients.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No patients stored. Add a new patient to begin tracking.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = '';
+    // Reverse chron sort roughly by ID
+    let sorted = [...patients].reverse();
+
+    sorted.forEach(p => {
+      // Find latest visit date
+      let lastVisit = 'N/A';
+      if(p.timeline.length > 0) {
+        let ts = [...p.timeline].sort((a,b) => new Date(b.date) - new Date(a.date));
+        lastVisit = new Date(ts[0].date).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric'});
+      }
+
+      const tr = document.createElement('tr');
+      tr.onclick = () => openTimeline(p.id);
+      tr.innerHTML = `
+        <td style="font-weight:600; color:var(--forest)">${p.name}</td>
+        <td style="color:#555">${p.phone}</td>
+        <td style="color:#555">${p.age}</td>
+        <td style="color:var(--sage); font-weight:500;">${lastVisit}</td>
+        <td><span class="status">Consulted</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function showListView() {
+    document.getElementById('listView').style.display = 'block';
+    const searchInp = document.getElementById('searchInput');
+    if (searchInp) { searchInp.value = ''; filterPatients(); }
+    
+    document.getElementById('timelineView').style.display = 'none';
+    document.getElementById('headerTitle').innerText = 'Patient Details';
+    document.getElementById('headerActions').innerHTML = `
+      <button class="btn-primary" onclick="openModal('patientModal')">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New Patient
+      </button>`;
+    renderTable();
+  }
+
+  function openTimeline(id) {
+    currentPatientId = id;
+    const p = patients.find(x => x.id === id);
+    if(!p) return;
+
+    document.getElementById('listView').style.display = 'none';
+    document.getElementById('timelineView').style.display = 'block';
+    
+    document.getElementById('headerTitle').innerText = 'Patient Timeline';
+    document.getElementById('headerActions').innerHTML = `
+      <button class="btn-primary" onclick="openTimelineModal()" style="background:var(--gold); color:var(--forest)">
+        <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>  
+        Log New Visit
+      </button>`;
+    
+    document.getElementById('tlName').innerText = p.name;
+    document.getElementById('tlPhone').innerText = "📞 " + p.phone;
+    document.getElementById('tlAge').innerText = "👤 " + p.age;
+
+    const tContainer = document.getElementById('timelineContainer');
+    if (p.timeline.length === 0) {
+      tContainer.innerHTML = '<div class="empty-state">No timeline entries yet.</div>';
+    } else {
+      tContainer.innerHTML = '';
+      // Sort timeline newest top
+      const tl = [...p.timeline].sort((a,b) => new Date(b.date) - new Date(a.date));
+      tl.forEach(t => {
+        tContainer.innerHTML += `
+          <div class="timeline-item">
+            <div class="tl-date">${new Date(t.date).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric'})}</div>
+            <div class="tl-content">
+              <h4>Consultation Note</h4>
+              <p>${t.notes}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+  }
+
+  // Modal Handlers
+  function openModal(id) {
+    const el = document.getElementById(id);
+    el.style.display = 'flex';
+    setTimeout(() => el.classList.add('active'), 10);
+  }
+  
+  function openTimelineModal() { 
+    document.getElementById('tDate').valueAsDate = new Date();
+    openModal('timelineModal');
+  }
+  
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    el.classList.remove('active');
+    setTimeout(() => el.style.display = 'none', 300);
+  }
+
+  // Form Submissions
+  document.getElementById('newPatientForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const newId = patients.length > 0 ? Math.max(...patients.map(p => p.id)) + 1 : 1;
+    const dateInput = new Date().toISOString().split('T')[0];
+    
+    const newPatient = {
+      id: newId,
+      name: document.getElementById('pName').value,
+      phone: document.getElementById('pPhone').value,
+      age: document.getElementById('pAge').value,
+      timeline: [{ date: dateInput, notes: document.getElementById('pComplaint').value }]
+    };
+    
+    patients.push(newPatient);
+    savePatients();
+    closeModal('patientModal');
+    this.reset();
+    showListView();
+  });
+
+  document.getElementById('newTimelineForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const p = patients.find(x => x.id === currentPatientId);
+    if(p) {
+      p.timeline.push({
+        date: document.getElementById('tDate').value,
+        notes: document.getElementById('tNotes').value
+      });
+      savePatients();
+      closeModal('timelineModal');
+      this.reset();
+      openTimeline(currentPatientId); // Refresh timeline view
+    }
+  });
+
+  function logout() {
+    sessionStorage.removeItem('adminAuth');
+    window.location.href = 'index.html';
+  }
+
+  // Initialize
+  showListView();
+</script>
+</body>
+</html>

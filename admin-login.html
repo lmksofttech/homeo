@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login - Kishore Homeo Clinic</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #1a3928;
+    --sage: #234d35;
+    --mint: #3d8a5e;
+    --pale: #9bcfaf;
+    --gold: #c49a4a;
+    --gold-light: #e8c97a;
+    --text: #1a2820;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background-color: #0d1c13;
+    background-image: 
+      radial-gradient(ellipse at top left, rgba(35,77,53,0.8) 0%, rgba(26,57,40,0.8) 40%, transparent 100%),
+      url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239bcfaf' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+  body::before {
+    content: '';
+    position: absolute; top: -30%; left: -10%; width: 120vw; height: 120vw;
+    background: radial-gradient(circle, rgba(155,207,175,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: absolute; top: 10%; right: -10%; width: 60vh; height: 60vh;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='-120 -100 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%233d8a5e' fill-opacity='0.15' d='M 0 -30 C 0 -30 -15 -60 -60 -60 C -105 -60 -105 -10 -105 -10 C -105 40 -60 80 0 120 C 60 80 105 40 105 -10 C 105 -10 105 -60 60 -60 C 15 -60 0 -30 0 -30 Z' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .login-card {
+    position: relative;
+    z-index: 10;
+    padding: 0;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  .login-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--gold-light);
+    margin-bottom: 24px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--pale);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .form-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(155,207,175,0.2);
+    padding: 14px 16px;
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .form-group input:focus {
+    border-color: var(--mint);
+    background: rgba(255,255,255,0.1);
+  }
+  .btn-submit {
+    width: 100%;
+    background: var(--gold);
+    color: var(--forest);
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover {
+    background: var(--gold-light);
+  }
+  .error-msg {
+    color: #ff6b6b;
+    font-size: 13px;
+    margin-top: 15px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <h2>Admin Portal</h2>
+  <form id="loginForm">
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" required>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" required>
+    </div>
+    <button type="submit" class="btn-submit">Login</button>
+    <div class="error-msg" id="errorMsg">Invalid credentials. Hint: admin / admin</div>
+  </form>
+</div>
+
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+    if (user === 'admin' && pass === 'admin') {
+      sessionStorage.setItem('adminAuth', 'true');
+      window.location.href = 'admin-dashboard.html';
+    } else {
+      document.getElementById('errorMsg').style.display = 'block';
+    }
+  });
+</script>
+</body>
+</html>
