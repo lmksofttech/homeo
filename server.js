@@ -198,10 +198,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
-// Optional: handle all unknown routes (for safety)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
+
 
 // ======================
 // 🔥 DB CONNECT + START
