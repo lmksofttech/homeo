@@ -513,6 +513,51 @@
   .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 28px; }
 
   .empty-state { text-align: center; padding: 60px 20px !important; color: var(--text-muted); font-size: 14px; }
+
+  /* ─── RESPONSIVE / MOBILE ─── */
+  @media (max-width: 960px) {
+    body { flex-direction: column; height: auto; overflow: auto; min-height: 100vh; }
+    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); padding: 12px 16px; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+    .brand { margin-bottom: 0; width: 100%; justify-content: center; padding: 10px 0; border-bottom: 1px solid var(--border); margin-bottom: 12px; gap: 8px; }
+    .nav-divider { display: none; }
+    .nav-section-label { display: none; }
+    .nav-item { padding: 8px 6px; font-size: 12.5px; margin-bottom: 0; flex: 1; justify-content: center; text-align: center; }
+    .nav-item.active::before { width: 100%; height: 3px; top: auto; bottom: 0; left: 0; transform: none; border-radius: 3px 3px 0 0; }
+    .sidebar > div[style*="display:flex; gap:10px;"] { display: none !important; }
+    .nav-item.logout { margin-top: 0; flex: none; width: auto; }
+    
+    .main { overflow: visible; flex: 1; }
+    .header { padding: 20px 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 16px; }
+    #headerActions { width: 100%; justify-content: space-between; display: flex; gap: 10px; }
+    
+    .content-area { padding: 16px; }
+    .stats-row { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-value { font-size: 24px; }
+    
+    .card { padding: 16px; }
+    .search-bar { max-width: 100%; }
+    
+    table { display: block; overflow-x: auto; white-space: nowrap; width: 100%; }
+    th, td { padding: 12px 10px; font-size: 13px; }
+    
+    .patient-header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
+    .patient-header h3 { font-size: 22px; }
+    #detailsContent { grid-template-columns: 1fr !important; }
+    .timeline-wrap { padding: 16px; }
+    
+    .modal { padding: 24px 20px; }
+    form div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 500px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .nav-item { padding: 8px; font-size: 11px; flex-direction: column; gap: 4px; }
+    .nav-item svg { width: 22px; height: 22px; }
+    #headerActions { flex-direction: column; width: 100%; }
+    #headerActions .btn { width: 100%; justify-content: center; font-size: 14px; padding: 12px; }
+    .modal-actions { flex-direction: column-reverse; }
+    .modal-actions .btn { width: 100%; justify-content: center; margin-left: 0 !important; }
+  }
 </style>
 </head>
 <body>
