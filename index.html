@@ -110,6 +110,7 @@
   }
   .nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); }
 
+  .nav-right { display: none; }
   .nav-hamburger {
     display: none;
     flex-direction: column;
@@ -843,7 +844,18 @@
     .nav-links a:not(.nav-cta)::after { display: none; }
     .nav-links li:last-child a { border-bottom: none; }
     .nav-cta { text-align: center !important; margin-top: 10px; display: block !important; border-radius: 8px !important; padding: 14px 20px !important; }
-    .nav-hamburger { display: flex; z-index: 101; }
+    
+    .nav-right { display: flex; align-items: center; gap: 14px; z-index: 101; }
+    .nav-cta-mobile {
+      background: var(--gold);
+      color: var(--forest);
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13.5px;
+      text-decoration: none;
+    }
+    .nav-hamburger { display: flex; padding: 4px; }
     .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
     .nav-hamburger.open span:nth-child(2) { opacity: 0; }
     .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
@@ -975,8 +987,11 @@
     <li><a href="admin-login.html">Admin Portal</a></li>
     <li><a href="#" onclick="openModal(); return false;" class="nav-cta">Book Consultation</a></li>
   </ul>
-  <div class="nav-hamburger" onclick="toggleMenu(this)" aria-label="Menu">
-    <span></span><span></span><span></span>
+  <div class="nav-right">
+    <a href="#" onclick="openModal(); return false;" class="nav-cta-mobile">Book</a>
+    <div class="nav-hamburger" onclick="toggleMenu(this)" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </div>
   </div>
 </nav>
 
