@@ -1,5 +1,13 @@
 require('dotenv').config();
 
+// 🔥 GLOBAL ERROR HANDLERS (PREVENT CRASH)
+process.on("uncaughtException", (err) => {
+  console.error("🔥 Uncaught Exception:", err);
+});
+process.on("unhandledRejection", (err) => {
+  console.error("🔥 Unhandled Rejection:", err);
+});
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -13,56 +21,58 @@ app.use(cors());
 app.use(express.json());
 
 // ======================
-// 🔥 SCHEMAS & MODELS
+// 🔥 MODELS
 // ======================
 
-// Patient Schema
+// Patient
 const patientSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: String,
   age: String,
-  timeline: [
-    {
-      date: { type: Date, default: Date.now },
-      notes: String,
-    },
-  ],
-  additionalFields: mongoose.Schema.Types.Mixed,
+  timeline: [{
+    date: { type: Date, default: Date.now },
+    notes: String
+  }],
+  additionalFields: mongoose.Schema.Types.Mixed
 }, { timestamps: true });
 
 const Patient = mongoose.model('Patient', patientSchema);
 
-// Admin Schema
+// Admin
 const adminSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true }
 });
 
 const Admin = mongoose.model('Admin', adminSchema);
 
-// Reminder Schema (moved UP before usage ✅)
+// Reminder
 const reminderSchema = new mongoose.Schema({
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
   patientName: String,
   patientPhone: String,
   reminderDate: { type: Date, required: true },
-  message: { type: String, default: '' },
-  status: { type: String, enum: ['pending', 'completed', 'missed'], default: 'pending' },
+  message: String,
+  status: { type: String, default: 'pending' },
   email: String,
   emailSent: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now }
 });
 
 const Reminder = mongoose.model('Reminder', reminderSchema);
 
 // ======================
-// 🔥 SEED ADMIN
+// 🔥 SAFE SEED ADMIN
 // ======================
 async function seedAdmin() {
-  const count = await Admin.countDocuments();
-  if (count === 0) {
-    await Admin.create({ username: 'admin', password: 'admin' });
-    console.log('👤 Default admin created: admin / admin');
+  try {
+    const count = await Admin.countDocuments();
+    if (count === 0) {
+      await Admin.create({ username: 'admin', password: 'admin' });
+      console.log("👤 Admin created (admin/admin)");
+    }
+  } catch (err) {
+    console.error("❌ SeedAdmin error:", err.message);
   }
 }
 
@@ -70,59 +80,58 @@ async function seedAdmin() {
 // 🔥 ROUTES
 // ======================
 
-// Health check
+// Health route (VERY IMPORTANT for Render)
 app.get("/", (req, res) => {
-  res.send("🚀 Server is running");
+  res.status(200).send("✅ Backend is running");
 });
 
-// Admin Login
+// Login
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
     const admin = await Admin.findOne({ username, password });
 
     if (!admin) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ success: false });
     }
 
-    res.json({ success: true, message: 'Login successful' });
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Get Patients
+// Get patients
 app.get('/api/patients', async (req, res) => {
   try {
-    const patients = await Patient.find().sort({ updatedAt: -1 });
-    res.json(patients);
+    const data = await Patient.find().sort({ updatedAt: -1 });
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Add Patient
+// Add patient
 app.post('/api/patients', async (req, res) => {
   try {
-    const newPatient = new Patient(req.body);
-    await newPatient.save();
+    const patient = new Patient(req.body);
+    await patient.save();
 
-    // Auto reminder
-    if (newPatient.timeline?.length > 0) {
-      const visitDate = new Date(newPatient.timeline[0].date);
-      const followUpDate = new Date(visitDate);
-      followUpDate.setDate(followUpDate.getDate() + 7);
+    if (patient.timeline?.length > 0) {
+      const visitDate = new Date(patient.timeline[0].date);
+      const followUp = new Date(visitDate);
+      followUp.setDate(followUp.getDate() + 7);
 
       await Reminder.create({
-        patientId: newPatient._id,
-        patientName: newPatient.name,
-        patientPhone: newPatient.phone,
-        reminderDate: followUpDate,
-        message: `Follow-up for visit on ${visitDate.toDateString()}`,
+        patientId: patient._id,
+        patientName: patient.name,
+        patientPhone: patient.phone,
+        reminderDate: followUp,
+        message: "Follow-up reminder"
       });
     }
 
-    res.status(201).json(newPatient);
+    res.status(201).json(patient);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -132,7 +141,7 @@ app.post('/api/patients', async (req, res) => {
 app.post('/api/patients/:id/timeline', async (req, res) => {
   try {
     const patient = await Patient.findById(req.params.id);
-    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+    if (!patient) return res.status(404).json({ error: 'Not found' });
 
     patient.timeline.push(req.body);
     await patient.save();
@@ -146,28 +155,18 @@ app.post('/api/patients/:id/timeline', async (req, res) => {
 // Update patient
 app.put('/api/patients/:id', async (req, res) => {
   try {
-    const updated = await Patient.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    );
-
-    if (!updated) return res.status(404).json({ error: 'Patient not found' });
-
+    const updated = await Patient.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// ======================
-// 🔥 REMINDER ROUTES
-// ======================
-
+// Reminder routes
 app.get('/api/reminders', async (req, res) => {
   try {
-    const reminders = await Reminder.find().sort({ reminderDate: 1 });
-    res.json(reminders);
+    const data = await Reminder.find().sort({ reminderDate: 1 });
+    res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -183,58 +182,35 @@ app.post('/api/reminders', async (req, res) => {
   }
 });
 
-app.put('/api/reminders/:id', async (req, res) => {
-  try {
-    const updated = await Reminder.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
-    );
-
-    if (!updated) return res.status(404).json({ error: 'Reminder not found' });
-
-    res.json(updated);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-app.delete('/api/reminders/:id', async (req, res) => {
-  try {
-    await Reminder.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // ======================
 // 🔥 STATIC FILES
 // ======================
 app.use(express.static(path.join(__dirname)));
 
 // ======================
-// 🔥 DB CONNECTION + SERVER START
+// 🔥 DB CONNECT + START
 // ======================
 
 const MONGO_URI = process.env.MONGO_URI;
 
 if (!MONGO_URI) {
-  console.error("❌ MONGO_URI is missing in environment variables");
+  console.error("❌ Missing MONGO_URI");
   process.exit(1);
 }
 
-mongoose.connect(MONGO_URI)
-  .then(async () => {
-    console.log("✅ MongoDB Connected");
+mongoose.connect(MONGO_URI, {
+  serverSelectionTimeoutMS: 5000
+})
+.then(async () => {
+  console.log("✅ MongoDB Connected");
 
-    await seedAdmin();
+  await seedAdmin();
 
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error("❌ MongoDB Error:", err);
-    process.exit(1);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
+})
+.catch(err => {
+  console.error("❌ MongoDB Connection Error:", err);
+  process.exit(1);
+});
