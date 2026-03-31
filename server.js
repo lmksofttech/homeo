@@ -17,7 +17,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "*", // allow all (for now)
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"]
+}));
 app.use(express.json());
 
 // ======================
@@ -185,7 +189,19 @@ app.post('/api/reminders', async (req, res) => {
 // ======================
 // 🔥 STATIC FILES
 // ======================
-app.use(express.static(path.join(__dirname)));
+const frontendPath = path.join(__dirname);
+
+app.use(express.static(frontendPath));
+
+// Serve index.html for root
+app.get("/", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+// Optional: handle all unknown routes (for safety)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 
 // ======================
 // 🔥 DB CONNECT + START
