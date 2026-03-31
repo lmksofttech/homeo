@@ -214,16 +214,15 @@ if (!MONGO_URI) {
 mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 5000
 })
-.then(async () => {
-  console.log("✅ MongoDB Connected");
+  .then(async () => {
+    console.log("✅ MongoDB Connected");
 
-  await seedAdmin();
-
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+    await seedAdmin();
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error("❌ MongoDB Connection Error:", err);
+    process.exit(1);
   });
-})
-.catch(err => {
-  console.error("❌ MongoDB Connection Error:", err);
-  process.exit(1);
-});
