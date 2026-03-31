@@ -185,7 +185,8 @@
       btn.disabled = true;
       
       try {
-        const response = await fetch('/api/login', {
+        const API_BASE = window.location.port === '3000' ? '' : 'http://localhost:3000';
+        const response = await fetch(`${API_BASE}/api/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
