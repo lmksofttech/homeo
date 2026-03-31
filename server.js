@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-// 🔥 GLOBAL ERROR HANDLERS (PREVENT CRASH)
+// 🔥 GLOBAL ERROR HANDLERS
 process.on("uncaughtException", (err) => {
   console.error("🔥 Uncaught Exception:", err);
 });
@@ -16,12 +16,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// ======================
+// 🔥 MIDDLEWARE
+// ======================
 app.use(cors({
-  origin: "*", // allow all (for now)
+  origin: "*",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
+
 app.use(express.json());
 
 // ======================
@@ -66,7 +69,7 @@ const reminderSchema = new mongoose.Schema({
 const Reminder = mongoose.model('Reminder', reminderSchema);
 
 // ======================
-// 🔥 SAFE SEED ADMIN
+// 🔥 SEED ADMIN
 // ======================
 async function seedAdmin() {
   try {
@@ -81,13 +84,8 @@ async function seedAdmin() {
 }
 
 // ======================
-// 🔥 ROUTES
+// 🔥 API ROUTES
 // ======================
-
-// Health route (VERY IMPORTANT for Render)
-app.get("/", (req, res) => {
-  res.status(200).send("✅ Backend is running");
-});
 
 // Login
 app.post('/api/login', async (req, res) => {
@@ -121,6 +119,7 @@ app.post('/api/patients', async (req, res) => {
     const patient = new Patient(req.body);
     await patient.save();
 
+    // Auto reminder
     if (patient.timeline?.length > 0) {
       const visitDate = new Date(patient.timeline[0].date);
       const followUp = new Date(visitDate);
@@ -159,7 +158,11 @@ app.post('/api/patients/:id/timeline', async (req, res) => {
 // Update patient
 app.put('/api/patients/:id', async (req, res) => {
   try {
-    const updated = await Patient.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updated = await Patient.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
     res.json(updated);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -187,18 +190,18 @@ app.post('/api/reminders', async (req, res) => {
 });
 
 // ======================
-// 🔥 STATIC FILES
+// 🔥 FRONTEND (IMPORTANT)
 // ======================
+
 const frontendPath = path.join(__dirname);
 
+// Serve static files
 app.use(express.static(frontendPath));
 
-// Serve index.html for root
+// Serve index.html on root
 app.get("/", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
-
-
 
 // ======================
 // 🔥 DB CONNECT + START
@@ -214,15 +217,16 @@ if (!MONGO_URI) {
 mongoose.connect(MONGO_URI, {
   serverSelectionTimeoutMS: 5000
 })
-  .then(async () => {
-    console.log("✅ MongoDB Connected");
+.then(async () => {
+  console.log("✅ MongoDB Connected");
 
-    await seedAdmin();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
-  })
-  .catch(err => {
-    console.error("❌ MongoDB Connection Error:", err);
-    process.exit(1);
+  await seedAdmin();
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
   });
+})
+.catch(err => {
+  console.error("❌ MongoDB Error:", err);
+  process.exit(1);
+});
