@@ -185,7 +185,7 @@
       btn.disabled = true;
       
       try {
-        const API_BASE = window.location.port === '3000' ? '' : 'http://localhost:3000';
+        const API_BASE = window.location.port === '3000' ? '' : 'https://homeo-ioft.onrender.com';
         const response = await fetch(`${API_BASE}/api/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
